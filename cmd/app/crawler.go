@@ -7,8 +7,10 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"simple-web-scraper/cmd/internal"
 
 	"github.com/PuerkitoBio/goquery"
+	
 )
 
 func crawler(urls []string, crawlerGatherTimeSeconds int) {
@@ -31,7 +33,7 @@ loop:
 			getURLs(urls[i], &urls, &visited)
 		}
 	}
-	scraper(urls)
+	internal.Scraper(urls)
 }
 
 func getURLs(url string, urls *[]string, visited *[]string) {

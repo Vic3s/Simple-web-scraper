@@ -1,17 +1,14 @@
-package main
+package internal
 
 import (
 	"fmt"
-	"net/http"
 	"log"
-	"slices"
-	"strings"
-	"os"
+	"net/http"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func scraper(urls []string) {
+func Scraper(urls []string) {
 	fmt.Println("Scraper starting...")
 
 	for i := 0; i < len(urls); i++ {
@@ -19,7 +16,7 @@ func scraper(urls []string) {
 	}
 }
 
-func scrape (url string) {
+func scrape(url string) {
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -33,13 +30,15 @@ func scrape (url string) {
 		log.Printf("Could not read HTML Body of page %s, skipping.", url)
 		return
 	}
-	coreComponents(htmlDoc)
-	
+	coreComponents := CoreComponents(htmlDoc)
+	identifiers := Identifiers(htmlDoc)
+	metadata := Metadata(htmlDoc)
+
+	scrapedData := ScrapedData{
+		url,
+		coreComponents,
+		identifiers,
+		metadata,
+	}
+	writeToJSON(".", scrapedData)
 }
-
-// initial scraping data methods
-
-func coreComponents(document *goquery.Document) {}
-func identifiers(document *goquery.Document) {}
-func metadata(document *goquery.Document) {}
-func relationships(document *goquery.Document) {}
