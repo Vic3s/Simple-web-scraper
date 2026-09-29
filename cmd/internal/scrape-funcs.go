@@ -1,13 +1,13 @@
 package internal
 
 import (
-	"strings"
 	"encoding/json"
-	"os"
-	"log"
-	"time"
-	"math/rand"
 	"fmt"
+	"log"
+	"math/rand"
+	"os"
+	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -70,8 +70,124 @@ func CoreComponents(document *goquery.Document) CoreComponentsData {
 	return data
 }
 func Identifiers(document *goquery.Document) IdentifiersData {
+	productIds := []string{}
+	articleIds := []string{}
+	userIds := []string{}
+	skus := []string{}
+	externalIds := []string{}
+	embededIds := []string{}
 
-	data := IdentifiersData{}
+	for _, attr := range []string{
+		"data-product-id",
+		"data-productid",
+		"product-id",
+		"product_id",
+		"data-id",
+		"data-product",
+	} {
+		selector := fmt.Sprintf("[%s]", attr)
+
+		document.Find(selector).Each(func(i int, s *goquery.Selection) {
+			if value, exists := s.Attr(attr); exists && value != "" {
+				productIds = append(productIds, value)
+			}
+		})
+	}
+	document.Find("article").Each(func(i int, s *goquery.Selection) {
+		for _, attr := range []string{
+			"data-post-id",
+			"data-article-id",
+			"data-content-id",
+			"data-item-id",
+		} {
+			if value, exists := s.Attr(attr); exists && value != "" {
+				articleIds = append(articleIds, value)
+			}
+		}
+	})
+	// Article IDs might be found in the URL as well - might implement functionality to get from the URL as well
+
+	for _, attr := range []string{
+		"data-user-id",
+		"data-userid",
+		"user-id",
+		"userid",
+	} {
+		selector := fmt.Sprintf("[%s]", attr)
+
+		document.Find(selector).Each(func(i int, s *goquery.Selection) {
+			if value, exists := s.Attr(attr); exists && value != "" {
+				userIds = append(userIds, value)
+			}
+		})
+	}
+	// User IDs can also be found in the URL - again i might add functionality to extract from there.
+
+	document.Find("[data-sku]").Each(func(i int, s *goquery.Selection) {
+		if value, exists := s.Attr("data-sku"); exists && value != "" {
+			skus = append(skus, value)
+		}
+	})
+	document.Find(".sku").Each(func(i int, s *goquery.Selection) {
+		skus = append(skus, s.Text())
+	})
+	for _, attr := range []string{
+		"stripeCustomerId",
+		"stripePaymentIntentId",
+		"googleUserId",
+		"githubUserId",
+		"externalOrderId",
+		"externalProductId",
+		"facebookPageId",
+		"youtubeChannelId",
+		"gaClientId",
+		"adAccountId",
+		"crmContactId",
+	} {
+		selector := fmt.Sprintf("[%s]", attr)
+
+		document.Find(selector).Each(func(i int, s *goquery.Selection) {
+			if value, exists := s.Attr(attr); exists && value != "" {
+				externalIds = append(externalIds, value)
+			}
+		})
+	}
+	document.Find("*").Each(func(i int, s *goquery.Selection) {
+		if len(s.Nodes) == 0 {
+			return
+		}
+
+		for _, attr := range s.Nodes[0].Attr {
+			if strings.Contains(attr.Key, "id") || strings.Contains(attr.Key, "Id") {
+				embededIds = append(embededIds, attr.Val)
+			}
+		}
+	})
+	document.Find("script").Each(func(i int, s *goquery.Selection) {
+		script := s.Text()
+		var data map[string]interface{}
+
+		err := json.Unmarshal([]byte(script), &data)
+		if err == nil {
+			for key, value := range data {
+				lower := strings.ToLower(key)
+				if strings.Contains(lower, "id") || strings.Contains(lower, "sku") {
+					if str, ok := value.(string); ok && str != "" {
+						embededIds = append(embededIds, str)
+					}
+				}
+			}
+		}
+	})
+
+	data := IdentifiersData{
+		productIds,
+		articleIds,
+		userIds,
+		skus,
+		externalIds,
+		embededIds,
+	}
 
 	return data
 }
@@ -82,12 +198,12 @@ func Metadata(document *goquery.Document) MetadataData {
 	return data
 }
 
-func writeToJSON(fileDir string, dataset any){
+func writeToJSON(fileDir string, dataset any) {
 	// create file first
-	fileDir = fileDir + "/" + fmt.Sprintf("scraped-%s-%d", time.Now().Format("2006-01-02_15-04-05"), rand.Int())
+	fileDir = fileDir + "/" + fmt.Sprintf("scraped-%s-%d.json", time.Now().Format("2006-01-02_15-04-05"), rand.Int())
 
 	file, err := os.Create(fileDir)
-	if err != nil{
+	if err != nil {
 		log.Printf("Could not create file: " + err.Error())
 		return
 	}
@@ -97,8 +213,9 @@ func writeToJSON(fileDir string, dataset any){
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "    ")
 	err = encoder.Encode(dataset)
-	if err != nil{
+	if err != nil {
 		log.Printf("Could not encode to json: " + err.Error())
 		return
 	}
+	log.Printf("Scrape saved at %s.", fileDir)
 }

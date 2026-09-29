@@ -41,4 +41,6 @@ func scrape(url string) {
 		metadata,
 	}
 	writeToJSON(".", scrapedData)
+
+	log.Printf("Scraping complete for %s.", url)
 }

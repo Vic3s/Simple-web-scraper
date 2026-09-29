@@ -21,7 +21,6 @@ type IdentifiersData struct {
 	ArticleIDs  []string `json:"article_ids"`
 	UserIDs     []string `json:"user_ids"`
 	SKUs        []string `json:"skus"`
-	Slugs       []string `json:"slugs"`
 	ExternalIDs []string `json:"external_ids"`
 	EmbededIDs  []string `json:"embeded_ids"`
 }
