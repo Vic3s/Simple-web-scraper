@@ -1,10 +1,10 @@
 package internal
 
 type ScrapedData struct {
-	URL            string
-	CoreComponents CoreComponentsData
-	Identifiers    IdentifiersData
-	Metadata       MetadataData
+	URL            string             `json:"url"`
+	CoreComponents CoreComponentsData `json:"core_components"`
+	Identifiers    IdentifiersData    `json:"identifiers"`
+	Metadata       MetadataData       `json:"metadata"`
 }
 
 type CoreComponentsData struct {
@@ -22,7 +22,7 @@ type IdentifiersData struct {
 	UserIDs     []string `json:"user_ids"`
 	SKUs        []string `json:"skus"`
 	ExternalIDs []string `json:"external_ids"`
-	EmbededIDs  []string `json:"embeded_ids"`
+	EmbeddedIDs []string `json:"embedded_ids"`
 }
 
 type MetadataData struct {

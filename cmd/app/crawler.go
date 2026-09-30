@@ -1,16 +1,16 @@
 package main
 
 import (
+	"simple-web-scraper/cmd/internal"
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"slices"
 	"strings"
 	"time"
-	"simple-web-scraper/cmd/internal"
 
 	"github.com/PuerkitoBio/goquery"
-	
 )
 
 func crawler(urls []string, crawlerGatherTimeSeconds int) {
@@ -19,31 +19,33 @@ func crawler(urls []string, crawlerGatherTimeSeconds int) {
 
 	visited := []string{}
 
-	timer := time.NewTimer(time.Duration(crawlerGatherTimeSeconds) * time.Second)
-	defer timer.Stop()
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(crawlerGatherTimeSeconds)*time.Second,
+	)
+	defer cancel()
 
-loop:
 	for i := 0; i < len(urls); i++ {
-		select {
-		case <-timer.C:
-			fmt.Println("Crawler finished.")
-			break loop
-
-		default:
-			getURLs(urls[i], &urls, &visited)
+		if ctx.Err() != nil {
+			break
 		}
+		getURLs(urls[i], &urls, &visited, ctx)
 	}
 	internal.Scraper(urls)
 }
 
-func getURLs(url string, urls *[]string, visited *[]string) {
+func getURLs(url string, urls *[]string, visited *[]string, ctx context.Context) {
 	if slices.Contains(*visited, url) {
 		return
 	}
 
-	resp, err := http.Get(url)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		log.Printf("Could not reach %s, skipping.", url)
+		return
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
 		return
 	}
 	defer resp.Body.Close()

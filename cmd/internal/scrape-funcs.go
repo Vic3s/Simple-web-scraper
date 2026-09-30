@@ -75,7 +75,7 @@ func Identifiers(document *goquery.Document) IdentifiersData {
 	userIds := []string{}
 	skus := []string{}
 	externalIds := []string{}
-	embededIds := []string{}
+	embeddedIds := []string{}
 
 	for _, attr := range []string{
 		"data-product-id",
@@ -158,8 +158,8 @@ func Identifiers(document *goquery.Document) IdentifiersData {
 		}
 
 		for _, attr := range s.Nodes[0].Attr {
-			if strings.Contains(attr.Key, "id") || strings.Contains(attr.Key, "Id") {
-				embededIds = append(embededIds, attr.Val)
+			if attr.Key == "id" || strings.HasSuffix(attr.Key, "Id") || strings.HasSuffix(attr.Key, "-id") {
+				embeddedIds = append(embeddedIds, attr.Val)
 			}
 		}
 	})
@@ -171,9 +171,9 @@ func Identifiers(document *goquery.Document) IdentifiersData {
 		if err == nil {
 			for key, value := range data {
 				lower := strings.ToLower(key)
-				if strings.Contains(lower, "id") || strings.Contains(lower, "sku") {
+				if lower == "id" || strings.HasSuffix(lower, "Id") || strings.HasSuffix(lower, "-id") || strings.HasSuffix(lower, "-sku") {
 					if str, ok := value.(string); ok && str != "" {
-						embededIds = append(embededIds, str)
+						embeddedIds = append(embeddedIds, str)
 					}
 				}
 			}
@@ -186,7 +186,7 @@ func Identifiers(document *goquery.Document) IdentifiersData {
 		userIds,
 		skus,
 		externalIds,
-		embededIds,
+		embeddedIds,
 	}
 
 	return data
@@ -204,7 +204,7 @@ func writeToJSON(fileDir string, dataset any) {
 
 	file, err := os.Create(fileDir)
 	if err != nil {
-		log.Printf("Could not create file: " + err.Error())
+		log.Printf("Could not create file: %s", err.Error())
 		return
 	}
 	defer file.Close()
@@ -214,7 +214,7 @@ func writeToJSON(fileDir string, dataset any) {
 	encoder.SetIndent("", "    ")
 	err = encoder.Encode(dataset)
 	if err != nil {
-		log.Printf("Could not encode to json: " + err.Error())
+		log.Printf("Could not encode to json: %s", err.Error())
 		return
 	}
 	log.Printf("Scrape saved at %s.", fileDir)
