@@ -192,8 +192,30 @@ func Identifiers(document *goquery.Document) IdentifiersData {
 	return data
 }
 
-func Metadata(document *goquery.Document) MetadataData {
-	data := MetadataData{}
+
+func SiteMetadata(document *goquery.Document) SiteMetadataData {
+
+	title := strings.TrimSpace(document.Find("title").First().Text())
+
+	description := getMetaHelper(document, "name", "description")
+
+	canonical, _ := document.Find(`link[rel="canonical"]`).Attr("href")
+
+	robots := getMetaHelper(document, "name", "robots")
+
+	language, _ := document.Find("html").Attr("lang")
+
+	author := getAuthorHelper(document)
+
+
+	data := SiteMetadataData{
+		title,
+		description,
+		strings.TrimSpace(canonical),
+		robots,
+		strings.TrimSpace(language),
+		author,
+	}
 
 	return data
 }
@@ -217,5 +239,5 @@ func writeToJSON(fileDir string, dataset any) {
 		log.Printf("Could not encode to json: %s", err.Error())
 		return
 	}
-	log.Printf("Scrape saved at %s.", fileDir)
+	log.Printf("Scraped data saved at %s.", fileDir)
 }

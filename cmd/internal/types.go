@@ -4,7 +4,7 @@ type ScrapedData struct {
 	URL            string             `json:"url"`
 	CoreComponents CoreComponentsData `json:"core_components"`
 	Identifiers    IdentifiersData    `json:"identifiers"`
-	Metadata       MetadataData       `json:"metadata"`
+	SiteMetadata   SiteMetadataData   `json:"metadata"`
 }
 
 type CoreComponentsData struct {
@@ -25,15 +25,11 @@ type IdentifiersData struct {
 	EmbeddedIDs []string `json:"embedded_ids"`
 }
 
-type MetadataData struct {
-	Author          []string `json:"author"`
-	Publisher       []string `json:"publisher"`
-	Location        []string `json:"location"`
-	PublicationDate []string `json:"publication_date"`
-	LastUpdatedDate []string `json:"last_updated_date"`
-	Language        []string `json:"language"`
-	PageCategory    []string `json:"page_category"`
-	Tags            []string `json:"tags"`
-	ImageURLs       []string `json:"image_urls"`
-	CanonicalURLs   []string `json:"canonical_urls"`
+type SiteMetadataData struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Canonical   string `json:"canonical"`
+	Robots      string `json:"robots"`
+	Language    string `json:"language"`
+	Author      string `json:"author"`
 }
