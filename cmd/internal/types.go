@@ -4,7 +4,7 @@ type ScrapedData struct {
 	URL            string             `json:"url"`
 	CoreComponents CoreComponentsData `json:"core_components"`
 	Identifiers    IdentifiersData    `json:"identifiers"`
-	SiteMetadata   SiteMetadataData   `json:"metadata"`
+	SiteMetadata   SiteMetadataData   `json:"site_metadata"`
 }
 
 type CoreComponentsData struct {

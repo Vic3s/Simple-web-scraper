@@ -32,13 +32,13 @@ func scrape(url string) {
 	}
 	coreComponents := CoreComponents(htmlDoc)
 	identifiers := Identifiers(htmlDoc)
-	metadata := Metadata(htmlDoc)
+	siteMetadata := SiteMetadata(htmlDoc)
 
 	scrapedData := ScrapedData{
 		url,
 		coreComponents,
 		identifiers,
-		metadata,
+		siteMetadata,
 	}
 	writeToJSON(".", scrapedData)
 
