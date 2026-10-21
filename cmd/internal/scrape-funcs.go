@@ -192,21 +192,19 @@ func Identifiers(document *goquery.Document) IdentifiersData {
 	return data
 }
 
-
 func SiteMetadata(document *goquery.Document) SiteMetadataData {
 
 	title := strings.TrimSpace(document.Find("title").First().Text())
 
-	description := getMetaHelper(document, "name", "description")
+	description := GetMetaHelper(document, "name", "description")
 
 	canonical, _ := document.Find(`link[rel="canonical"]`).Attr("href")
 
-	robots := getMetaHelper(document, "name", "robots")
+	robots := GetMetaHelper(document, "name", "robots")
 
 	language, _ := document.Find("html").Attr("lang")
 
-	author := getAuthorHelper(document)
-
+	author := GetAuthorHelper(document)
 
 	data := SiteMetadataData{
 		title,

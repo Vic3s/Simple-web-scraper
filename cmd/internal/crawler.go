@@ -1,7 +1,6 @@
-package main
+package internal
 
 import (
-	"simple-web-scraper/cmd/internal"
 	"context"
 	"fmt"
 	"log"
@@ -13,8 +12,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func crawler(urls []string, crawlerGatherTimeSeconds int) {
-	fmt.Println("Crawler begins...")
+func Crawler(urls []string, crawlerGatherTimeSeconds int) []string {
+	fmt.Println("Crawling...")
 	fmt.Printf("Will crawl for %d seconds\n", crawlerGatherTimeSeconds)
 
 	visited := []string{}
@@ -29,12 +28,13 @@ func crawler(urls []string, crawlerGatherTimeSeconds int) {
 		if ctx.Err() != nil {
 			break
 		}
-		getURLs(urls[i], &urls, &visited, ctx)
+		GetURLs(urls[i], &urls, &visited, ctx)
 	}
-	internal.Scraper(urls)
+
+	return urls
 }
 
-func getURLs(url string, urls *[]string, visited *[]string, ctx context.Context) {
+func GetURLs(url string, urls *[]string, visited *[]string, ctx context.Context) {
 	if slices.Contains(*visited, url) {
 		return
 	}
