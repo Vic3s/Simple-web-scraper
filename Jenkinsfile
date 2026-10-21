@@ -10,14 +10,14 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing dependencies...'
-                sh 'go mod downlaod'
+                sh 'go mod download'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Testing...'
-                sh 'go test ./cmd/'
+                sh 'go test ./cmd/tests/unittests/'
             }
         }
 
