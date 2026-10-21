@@ -7,7 +7,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func getMetaHelper(document *goquery.Document, attr, value string) string {
+func GetMetaHelper(document *goquery.Document, attr, value string) string {
 	var result string
 
 	document.Find(fmt.Sprintf(`meta[%s="%s"]`, attr, value)).First().Each(func(_ int, s *goquery.Selection) {
@@ -17,7 +17,7 @@ func getMetaHelper(document *goquery.Document, attr, value string) string {
 	return result
 }
 
-func getAuthorHelper(document *goquery.Document) string {
+func GetAuthorHelper(document *goquery.Document) string {
 	if author, exists := document.Find(`meta[name="author"]`).Attr("content"); exists {
 		return author
 	}
