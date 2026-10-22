@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'docker-golang-agent'
+    }
 
     triggers {
         pollSCM 'H/5 * * * *'
